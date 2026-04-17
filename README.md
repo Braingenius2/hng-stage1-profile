@@ -20,6 +20,8 @@ This is a RESTful API service that accepts a name, enriches it by querying multi
 
 ## API Endpoints
 
+**Live Base URL:** `https://hng-stage1-profile-production.up.railway.app`
+
 ### 1. Create a Profile
 `POST /api/profiles`
 ```json
