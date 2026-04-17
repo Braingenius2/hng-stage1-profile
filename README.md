@@ -12,7 +12,7 @@ This is a RESTful API service that accepts a name, enriches it by querying multi
 
 ## Technologies Used
 - Java 21
-- Spring Boot 4.05
+- Spring Boot 4.0.5
 - Spring Data JPA
 - PostgreSQL (Production) & H2 (Local Development)
 - Maven
