@@ -9,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "profiles")
@@ -72,10 +74,12 @@ public class Profile {
     return gender;
   }
 
+  @JsonProperty("gender_probability")
   public Double getGenderProbability() {
     return genderProbability;
   }
 
+  @JsonProperty("sample_size")
   public Integer getSampleSize() {
     return sampleSize;
   }
@@ -84,18 +88,23 @@ public class Profile {
     return age;
   }
 
+  @JsonProperty("age_group")
   public String getAgeGroup() {
     return ageGroup;
   }
 
+  @JsonProperty("country_id")
   public String getCountryId() {
     return countryId;
   }
 
+  @JsonProperty("country_probability")
   public Double getCountryProbability() {
     return countryProbability;
   }
 
+  @JsonProperty("created_at")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC")
   public Instant getCreatedAt() {
     return createdAt;
   }
