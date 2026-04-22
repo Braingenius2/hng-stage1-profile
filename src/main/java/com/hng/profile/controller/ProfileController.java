@@ -57,9 +57,36 @@ public class ProfileController {
     return ResponseEntity.ok(new ProfileListResponse("success", profiles.size(), profiles));
   }
 
+  @GetMapping
+  public org.springframework.http.ResponseEntity<?> getProfiles(@RequestParam(required = false) String gender,
+      @RequestParam(required = false, name = "age_group") String ageGroup,
+      @RequestParam(required = false, name = "country_id") String countryId,
+      @RequestParam(required = false, name = "min_age") Integer minAge,
+      @RequestParam(required = false, name = "max_age") Integer maxAge,
+      @RequestParam(required = false, name = "min_gender_probability") Double minGenderProb,
+      @RequestParam(required = false, name = "min_country_probability") Double minCountryProb,
+      @RequestParam(required = false, name = "sort_by_name") String sortBy,
+      @RequestParam(required = false) String order, @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit) {
+
+    Page<Profile> profilePage = profileService.getProfiles(gender, ageGroup, countryId, minAge, maxAge, minGenderProb,
+        minCountryProb, sortBy, order, page, limit);
+
+    paginatedresponse response = new PaginatedResponse("success", page, profilePage.getSize(),
+        profilePage.getTotalElements(), profilePage.getContent());
+
+    return org.springframework.http.ResponseEntity.ok(response);
+
+  }
+
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteProfile(@PathVariable UUID id) {
     profileService.deleteProfile(id);
     return ResponseEntity.noContent().build();
   }
+}
+
+public record PaginatedResponse(String status, int page, int limit, long total,
+    java.util.List<com.hng.profile.model.Profile> data) {
+
 }

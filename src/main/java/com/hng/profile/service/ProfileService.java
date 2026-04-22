@@ -40,21 +40,28 @@ public class ProfileService {
         .orElseThrow(() -> new RuntimeException("Profile not found"));
   }
 
-  public List<Profile> getProfiles(String gender, String countryId, String ageGroup) {
-    Profile filterProbe = new Profile();
-    if (gender != null)
-      filterProbe.setGender(gender);
-    if (countryId != null)
-      filterProbe.setCountryId(countryId);
-    if (ageGroup != null)
-      filterProbe.setAgeGroup(ageGroup);
+  public page<Profile> getProfiles(String gender, String ageGroup, String countryId, Integer minAge,
+      Integer maxAge, Double minGenderProb, Double minCountryProb, String sortBy, String order, int page, int limit) {
+    Sort sort = Sort.unsorted();
+    if (sortBy != null && !sortBy.isBlank()) {
+      Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+      String sortProperty = switch (sortBy.toLowerCase()) {
+        case "created_at" -> "createdAt";
+        case "gender_probability" -> "genderProbability";
+        case "country_probability" -> "countryProbability";
+        default -> "age";
+      };
+      sort = Sort.by(direction, sortProperty);
+    }
 
-    ExampleMatcher matcher = ExampleMatcher.matching()
-        .withIgnoreNullValues()
-        .withIgnoreCase();
+    int springPage = page > 0 ? page - 1 : 0;
+    int safeLimit = Math.min(Math.max(limit, 1), 50);
+    Pageable pageable = PageRequest.of(springPage, safeLimit, sort);
 
-    Example<Profile> example = Example.of(filterProbe, matcher);
-    return profileRepository.findAll(example);
+    Specification<Profile> spec = com.hng.profile.ProfileSpecifications.buildFilter(gender, ageGroup, countryId, minAge,
+        maxAge, minGenderProb, minCountryProb);
+
+    return profileRepository.findAll(spec, pageable);
   }
 
   public void deleteProfile(UUID id) {
