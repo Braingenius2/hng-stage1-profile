@@ -17,10 +17,13 @@ import com.hng.profile.service.ProfileService;
 @RequestMapping("/api/profiles")
 public class ProfileController {
 
+  private final NaturalLanguageParser languageParser;
+
   private final ProfileService profileService;
 
-  public ProfileController(ProfileService profileService) {
+  public ProfileController(ProfileService profileService, NaturalLanguageParser languageParser) {
     this.profileService = profileService;
+    this.languageParser = languageParser;
   }
 
   @PostMapping
@@ -39,6 +42,39 @@ public class ProfileController {
 
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(new ProfileResponse("success", null, result.profile()));
+  }
+
+  @GetMapping("/search")
+  public org.springframework.http.ResponseEntity<?> searchProfiles(
+      @RequestParam String q,
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit) {
+
+    try {
+      // 1. Parse the natural language query into concrete filters
+      NaturalLanguageParser.ParsedQuery filters = languageParser.parse(q);
+
+      // 2. Pass the extracted filters directly to the Service you updated earlier!
+      Page<Profile> profilePage = profileService.getProfiles(
+          filters.gender, filters.ageGroup, filters.countryId,
+          filters.minAge, filters.maxAge, null, null,
+          null, null, page, limit);
+
+      // 3. Return the exact same pagination structure
+      PaginatedResponse response = new PaginatedResponse(
+          "success",
+          page,
+          profilePage.getSize(),
+          profilePage.getTotalElements(),
+          profilePage.getContent());
+
+      return org.springframework.http.ResponseEntity.ok(response);
+
+    } catch (IllegalArgumentException ex) {
+      // "Unable to interpret query" mapping (handled globally or right here)
+      return org.springframework.http.ResponseEntity.badRequest().body(
+          java.util.Map.of("status", "error", "message", ex.getMessage()));
+    }
   }
 
   @GetMapping("/{id}")
