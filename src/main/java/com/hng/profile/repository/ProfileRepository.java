@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.hng.profile.model.Profile;
 
 @Repository
-public interface ProfileRepository extends JpaRepository<Profile, UUID> {
+public interface ProfileRepository extends JpaRepository<Profile, UUID>, JpaSpecificationExecutor<Profile> {
 
   Optional<Profile> findByNameIgnoreCase(String name);
 }
