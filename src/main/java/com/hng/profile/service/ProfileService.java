@@ -20,7 +20,7 @@ import com.hng.profile.specification.ProfileSpecification;
 public class ProfileService {
   private static final Set<String> ALLOWED_GENDERS = Set.of("male", "female");
   private static final Set<String> ALLOWED_AGE_GROUPS = Set.of("child", "teenager", "adult", "senior");
-  private static final Set<String> ALLOWED_SORT_BY = Set.of("age", "created_at", "gender_probability");
+  private static final Set<String> ALLOWED_SORT_BY = Set.of("age", "created_at", "gender_probability", "country_probability");
   private static final Set<String> ALLOWED_ORDER = Set.of("asc", "desc");
 
   private final ProfileRepository profileRepository;
@@ -65,6 +65,7 @@ public class ProfileService {
       String sortProperty = switch (sortBy.toLowerCase()) {
         case "created_at" -> "createdAt";
         case "gender_probability" -> "genderProbability";
+        case "country_probability" -> "countryProbability";
         default -> sortBy; // pass through "age" etc.
       };
       sort = Sort.by(direction, sortProperty);
