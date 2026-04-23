@@ -10,6 +10,10 @@ This repository contains the same backend project across two milestones:
 - Spring Data JPA (Specifications)
 - H2 (local) and PostgreSQL driver (runtime dependency)
 - Maven
+- Jackson
+
+## Public Base URL
+`https://hng-stage1-profile-production.up.railway.app`
 
 ## Run Locally
 1. Ensure Java 21 is installed.
@@ -47,7 +51,7 @@ Supported query parameters:
 - `country_id`: 2-letter ISO code (for example `NG`, `KE`)
 - `min_age`, `max_age`
 - `min_gender_probability`, `min_country_probability` (0 to 1)
-- `sort_by`: `age | created_at | gender_probability`
+- `sort_by`: `age | created_at | gender_probability | country_probability`
 - `order`: `asc | desc`
 - `page`: default `1` (must be `>= 1`)
 - `limit`: default `10`, max `50`
