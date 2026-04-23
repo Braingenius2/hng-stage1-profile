@@ -47,10 +47,10 @@ public class EnrichmentService {
         name.toLowerCase(),
         genderData.gender(),
         genderData.probability(),
-        genderData.count(),
         ageData.age(),
         ageGroup,
         topCountry.country_id(),
+        null, // countryName not available from Nationalize API
         topCountry.probability());
   }
 

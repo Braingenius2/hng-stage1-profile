@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class NaturalLanguageParser {
+  private static final Pattern MALE_PATTERN = Pattern.compile("\\b(male|males|men|man)\\b");
+  private static final Pattern FEMALE_PATTERN = Pattern.compile("\\b(female|females|women|woman)\\b");
+  private static final Pattern ABOVE_AGE_PATTERN = Pattern.compile("(?:above|older than|over)\\s+(\\d+)");
+  private static final Pattern BELOW_AGE_PATTERN = Pattern.compile("(?:below|under|younger than)\\s+(\\d+)");
+  private static final Pattern COUNTRY_PATTERN = Pattern.compile("(?:from|in)\\s+([a-z\\s]+)");
 
   // Simple dictionary for ISO country codes
   private static final Map<String, String> COUNTRY_MAP = new HashMap<>();
@@ -61,19 +66,21 @@ public class NaturalLanguageParser {
   }
 
   public ParsedQuery parse(String query) {
-    if (query == null || query.isBlank()) {
-      throw new IllegalArgumentException("Query cannot be empty");
-    }
-
     String lowerQuery = query.toLowerCase().trim();
     ParsedQuery result = new ParsedQuery();
     boolean matchedSomething = false;
 
     // 1. Parse Gender
-    if (lowerQuery.contains("female") || lowerQuery.contains("women")) {
+    boolean hasMale = MALE_PATTERN.matcher(lowerQuery).find();
+    boolean hasFemale = FEMALE_PATTERN.matcher(lowerQuery).find();
+    if (hasMale && hasFemale) {
+      // Mixed gender query should not apply any gender filter.
+      result.gender = null;
+      matchedSomething = true;
+    } else if (hasFemale) {
       result.gender = "female";
       matchedSomething = true;
-    } else if (lowerQuery.matches(".*\\b(male|males|men|man)\\b.*")) {
+    } else if (hasMale) {
       result.gender = "male";
       matchedSomething = true;
     }
@@ -83,35 +90,35 @@ public class NaturalLanguageParser {
       result.minAge = 16;
       result.maxAge = 24;
       matchedSomething = true;
-    } else if (lowerQuery.contains("teenager")) {
+    } else if (lowerQuery.contains("teenager") || lowerQuery.contains("teenagers")) {
       result.ageGroup = "teenager";
       matchedSomething = true;
-    } else if (lowerQuery.contains("adult")) {
+    } else if (lowerQuery.contains("adult") || lowerQuery.contains("adults")) {
       result.ageGroup = "adult";
       matchedSomething = true;
-    } else if (lowerQuery.contains("senior")) {
+    } else if (lowerQuery.contains("senior") || lowerQuery.contains("seniors")) {
       result.ageGroup = "senior";
       matchedSomething = true;
-    } else if (lowerQuery.contains("child")) {
+    } else if (lowerQuery.contains("child") || lowerQuery.contains("children")) {
       result.ageGroup = "child";
       matchedSomething = true;
     }
 
     // 3. Parse Exact Age Comparisons ("above 30", "older than 17", "under 25")
-    Matcher aboveMatcher = Pattern.compile("(?:above|older than|over)\\s+(\\d+)").matcher(lowerQuery);
+    Matcher aboveMatcher = ABOVE_AGE_PATTERN.matcher(lowerQuery);
     if (aboveMatcher.find()) {
       result.minAge = Integer.parseInt(aboveMatcher.group(1));
       matchedSomething = true;
     }
 
-    Matcher belowMatcher = Pattern.compile("(?:below|under|younger than)\\s+(\\d+)").matcher(lowerQuery);
+    Matcher belowMatcher = BELOW_AGE_PATTERN.matcher(lowerQuery);
     if (belowMatcher.find()) {
       result.maxAge = Integer.parseInt(belowMatcher.group(1));
       matchedSomething = true;
     }
 
     // 4. Parse Location ("from nigeria", "in kenya")
-    Matcher countryMatcher = Pattern.compile("(?:from|in)\\s+([a-z\\s]+)").matcher(lowerQuery);
+    Matcher countryMatcher = COUNTRY_PATTERN.matcher(lowerQuery);
     if (countryMatcher.find()) {
       String extractedCountry = countryMatcher.group(1).trim();
       for (String knownCountry : COUNTRY_MAP.keySet()) {

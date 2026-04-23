@@ -27,15 +27,12 @@ public class Profile {
   @Column(name = "gender_probability")
   private Double genderProbability;
 
-  @Column(name = "sample_size")
-  private Integer sampleSize;
-
   private Integer age;
 
   @Column(name = "age_group")
   private String ageGroup;
 
-  @Column(name = "country_id")
+  @Column(name = "country_id", length = 2)
   private String countryId;
 
   @Column(name = "country_name")
@@ -51,13 +48,12 @@ public class Profile {
 
   }
 
-  public Profile(String name, String gender, Double genderProbability, Integer sampleSize,
+  public Profile(String name, String gender, Double genderProbability,
       Integer age, String ageGroup, String countryId, String countryName, Double countryProbability) {
     this.id = UuidCreator.getTimeOrderedEpoch(); // Generates UUID v7!
     this.name = name;
     this.gender = gender;
     this.genderProbability = genderProbability;
-    this.sampleSize = sampleSize;
     this.age = age;
     this.ageGroup = ageGroup;
     this.countryId = countryId;
@@ -81,11 +77,6 @@ public class Profile {
   @JsonProperty("gender_probability")
   public Double getGenderProbability() {
     return genderProbability;
-  }
-
-  @JsonProperty("sample_size")
-  public Integer getSampleSize() {
-    return sampleSize;
   }
 
   public Integer getAge() {
@@ -132,6 +123,22 @@ public class Profile {
 
   public void setAgeGroup(String ageGroup) {
     this.ageGroup = ageGroup;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setGenderProbability(Double genderProbability) {
+    this.genderProbability = genderProbability;
+  }
+
+  public void setAge(Integer age) {
+    this.age = age;
+  }
+
+  public void setCountryProbability(Double countryProbability) {
+    this.countryProbability = countryProbability;
   }
 
 }
